@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://photo-pdf-tools.vercel.app/sitemap.xml
