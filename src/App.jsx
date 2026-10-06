@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 import PhotoCompressor from "./components/PhotoCompressor";
@@ -23,8 +23,28 @@ const tools = [
 function App() {
   const [activeTool, setActiveTool] = useState(null);
 
-  const goBack = () => {
-    setActiveTool(null);
+  // Browser history se tool open/close handle karna
+  useEffect(() => {
+    const handlePopState = (event) => {
+      const tool = event.state?.tool || null;
+      setActiveTool(tool);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
+
+  const openTool = (tool) => {
+    setActiveTool(tool);
+
+    window.history.pushState(
+      { tool },
+      "",
+      `#${encodeURIComponent(tool)}`
+    );
   };
 
   if (activeTool) {
@@ -39,21 +59,6 @@ function App() {
               <div className="logo-subtitle">TOOLS</div>
             </div>
           </div>
-
-          <button
-            onClick={goBack}
-            style={{
-              padding: "10px 18px",
-              borderRadius: "10px",
-              border: "none",
-              background: "#eff6ff",
-              color: "#2563eb",
-              fontWeight: "700",
-              cursor: "pointer",
-            }}
-          >
-            ← Back
-          </button>
         </header>
 
         {activeTool === "Photo to KB" && <PhotoCompressor />}
@@ -161,7 +166,7 @@ function App() {
                     title === "Split PDF" ||
                     title === "PDF to JPG"
                   ) {
-                    setActiveTool(title);
+                    openTool(title);
                   } else {
                     alert(`${title} — Coming Soon`);
                   }
